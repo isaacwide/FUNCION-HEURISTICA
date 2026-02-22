@@ -1,10 +1,9 @@
 import numpy as np 
 import random
 
-def generar_tablero(resultado, movimientos):
+def generar_tablero(resultado, movimientos,size):
     # Set para guardar estados visitados
     estados_visitados = set()
-    # Agregar estado inicial
     estados_visitados.add(tuple(resultado.flatten()))
     
     movimientos_realizados = 0
@@ -21,11 +20,11 @@ def generar_tablero(resultado, movimientos):
         
         if i > 0:  # Puede moverse arriba
             movimientos_posibles.append((-1, 0))
-        if i < 3:  # Puede moverse abajo
+        if i < size-1:  # Puede moverse abajo
             movimientos_posibles.append((1, 0))
         if j > 0:  # Puede moverse izquierda
             movimientos_posibles.append((0, -1))
-        if j < 3:  # Puede moverse derecha
+        if j < size-1:  # Puede moverse derecha
             movimientos_posibles.append((0, 1))
         
         # Mezclar para probar en orden aleatorio
@@ -36,7 +35,6 @@ def generar_tablero(resultado, movimientos):
         for di, dj in movimientos_posibles:
             ni, nj = i + di, j + dj
             
-            # Hacer el movimiento temporalmente
             resultado[i][j], resultado[ni][nj] = resultado[ni][nj], resultado[i][j]
             
             # Convertir a tupla para verificar si ya existe
@@ -56,7 +54,6 @@ def generar_tablero(resultado, movimientos):
         if not movimiento_exitoso:
             intentos_sin_avance += 1
             if intentos_sin_avance >= max_intentos:
-                print(f"Advertencia: Solo se pudieron realizar {movimientos_realizados} movimientos únicos")
                 break
     
     return resultado
