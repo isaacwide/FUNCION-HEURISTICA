@@ -11,10 +11,16 @@ class Nodo:
     def __lt__(self, other):
         return self.heuristica > other.heuristica  # > porque maximizas
 
+#diccionario de la soguiente manera 
+
+# abiierto {"tablero":["heuristica":n,"padre":"tablero padre"]}
+
+
 abierto = []
 abierto_dict = {}  # tablero_tuple -> heuristica
 
-close = set()
+close = {}
+
 path = []
 
 def evaluacion(tablero_inicial, tablero_destino, n_movimientos):
@@ -86,6 +92,14 @@ def algoritmo(tablero_inicial, tablero_destino, size):
                 abierto_dict[tablero_tuple] = c.heuristica
 
             elif tablero_tuple in abierto_dict:
+                
                 if c.heuristica > abierto_dict[tablero_tuple]:  # c es mejor
                     abierto_dict[tablero_tuple] = c.heuristica  # actualizar dict
                     heapq.heappush(abierto, (c.heuristica, c))  # el viejo se ignora en el pop
+
+            elif tablero_tuple in close:
+                if c.heuristica > close[tablero_tuple]["heuristica"]:
+                    del close[tablero_tuple]                    # ← eliminar de close
+                    heapq.heappush(abierto, (c.heuristica, c))
+                    abierto_dict[tablero_tuple] = c.heuristica  # ← tablero actual, no el inicial
+
