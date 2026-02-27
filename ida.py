@@ -23,10 +23,10 @@ def evaluacion(tablero_inicial, tablero_destino, n_movimientos):
     h1 = piesas.h_1(tablero_inicial, tablero_destino)
     h2 = manhathan.h_2(tablero_inicial, tablero_destino)
     h3 = conflictos.h_3(tablero_inicial, tablero_destino)
-    h4 = max(completa.h_4(tablero_inicial, tablero_destino), 0.001)
+    h4 = completa.h_4(tablero_inicial, tablero_destino)
     h5 = centro.h_5(tablero_inicial, tablero_destino)
 
-    f = (0.1*h1 - 0.1*h2 - 0.3*h3 + 0.15*(1/h4) - 0.05*h5) - 0.2*(n_movimientos/100)
+    f = (-0.1*h1 + 0.1*h2 + 0.3*h3 - 0.15*h4 + 0.05*h5) - 0.2*(n_movimientos/100)
     return f
 
 def path_encontrado(nodo):
@@ -45,7 +45,7 @@ def algoritmo(tablero_inicial, tablero_destino, size):
     abierto_dict[tuple(tablero_inicial.flatten())] = {"heuristica": f, "padre": None}
 
 
-    while abierto:
+    while abierto: #deberia checar la memoria si esta llena o no seria la suma de espacio de open closee y diccionarios
         _, x = heapq.heappop(abierto)
         x_tuple = tuple(x.valor.flatten())
 
@@ -88,7 +88,7 @@ def algoritmo(tablero_inicial, tablero_destino, size):
         for c in chil:
             tablero_tuple = tuple(c.valor.flatten())#obtenemos el valor en tuplas 
 
-            if tablero_tuple not in abierto_dict and tablero_tuple not in close:#si no esta en open si em close
+            if tablero_tuple not in abierto_dict and tablero_tuple not in close:#si no esta en open si em close // aca agregariamos la busqueda por tabu con el path anterior 
                 heapq.heappush(abierto, (c.heuristica, c))
                 abierto_dict[tablero_tuple] = {"heuristica":c.heuristica,"padre":c.padre}
 
@@ -105,3 +105,4 @@ def algoritmo(tablero_inicial, tablero_destino, size):
 
         close[tuple(x.valor.flatten())]={"heuristica":x.heuristica,"padre":x.padre}
 
+#obtendriamos el path y lo guardamss y mandamos a la basura todo lo anterior 

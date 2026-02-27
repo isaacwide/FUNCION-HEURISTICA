@@ -6,7 +6,7 @@ import time
 destino = np.array([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,0]])
 aux = destino.copy() 
 
-tablero_final = tablero.generar_tablero(destino, 50, 4)
+tablero_final = tablero.generar_tablero(destino, 20, 4)
 
 print("Tablero destino:")
 print(aux)
