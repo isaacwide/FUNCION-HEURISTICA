@@ -12,29 +12,29 @@ class Nodo:
         return self.heuristica > other.heuristica  # > porque maximizas
 
 #diccionario de la soguiente manera 
-
-# abiierto {"tablero":["heuristica":n,"padre":"tablero padre"]}
-
-
-abierto = []
-abierto_dict = {}  # tablero_tuple -> heuristica
+# abierto {"tablero":["heuristica":n,"padre":"tablero padre"]}
+abierto = [] # heap para poder simpre tener el valor menor 
+abierto_dict = {}  # tablero_tuple -> heuristica -> padre 
 
 close = {}
-
 path = []
 
 def evaluacion(tablero_inicial, tablero_destino, n_movimientos):
     h1 = piesas.h_1(tablero_inicial, tablero_destino)
     h2 = manhathan.h_2(tablero_inicial, tablero_destino)
     h3 = conflictos.h_3(tablero_inicial, tablero_destino)
-    h4 = max(completa.h_4(tablero_inicial, tablero_destino), 0.1)
+    h4 = max(completa.h_4(tablero_inicial, tablero_destino), 0.001)
     h5 = centro.h_5(tablero_inicial, tablero_destino)
 
     f = (0.1*h1 - 0.1*h2 - 0.3*h3 + 0.15*(1/h4) - 0.05*h5) - 0.2*(n_movimientos/100)
     return f
 
 def path_encontrado(nodo):
-    pass
+    while nodo:
+        path.append(nodo.valor)
+        nodo = nodo.padre
+    return path[::-1]  
+    
 
 def algoritmo(tablero_inicial, tablero_destino, size):
     n_movimientos = 0
@@ -42,13 +42,14 @@ def algoritmo(tablero_inicial, tablero_destino, size):
     f = evaluacion(tablero_inicial, tablero_destino, n_movimientos)
     nodo = Nodo(tablero_inicial, f, None)
     heapq.heappush(abierto, (nodo.heuristica, nodo))
-    abierto_dict[tuple(tablero_inicial.flatten())] = f  # añadir al dict
+    abierto_dict[tuple(tablero_inicial.flatten())] = {"heuristica": f, "padre": None}
+
 
     while abierto:
         _, x = heapq.heappop(abierto)
         x_tuple = tuple(x.valor.flatten())
 
-        if abierto_dict.get(x_tuple) != x.heuristica:  # fue superado, ignorar
+        if abierto_dict.get(x_tuple, {}).get("heuristica") != x.heuristica:
             continue
 
         del abierto_dict[x_tuple]  # eliminar del dict
@@ -85,21 +86,22 @@ def algoritmo(tablero_inicial, tablero_destino, size):
             chil.append(new_nodo)
 
         for c in chil:
-            tablero_tuple = tuple(c.valor.flatten())
+            tablero_tuple = tuple(c.valor.flatten())#obtenemos el valor en tuplas 
 
-            if tablero_tuple not in abierto_dict and tablero_tuple not in close:
+            if tablero_tuple not in abierto_dict and tablero_tuple not in close:#si no esta en open si em close
                 heapq.heappush(abierto, (c.heuristica, c))
-                abierto_dict[tablero_tuple] = c.heuristica
+                abierto_dict[tablero_tuple] = {"heuristica":c.heuristica,"padre":c.padre}
 
             elif tablero_tuple in abierto_dict:
-                
-                if c.heuristica > abierto_dict[tablero_tuple]:  # c es mejor
-                    abierto_dict[tablero_tuple] = c.heuristica  # actualizar dict
+                if c.heuristica > abierto_dict[tablero_tuple]["heuristica"]:  # c es mejor
+                    abierto_dict[tablero_tuple] = {"heuristica": c.heuristica, "padre": c.padre} # actualizar dict
                     heapq.heappush(abierto, (c.heuristica, c))  # el viejo se ignora en el pop
 
             elif tablero_tuple in close:
                 if c.heuristica > close[tablero_tuple]["heuristica"]:
                     del close[tablero_tuple]                    # ← eliminar de close
                     heapq.heappush(abierto, (c.heuristica, c))
-                    abierto_dict[tablero_tuple] = c.heuristica  # ← tablero actual, no el inicial
+                    abierto_dict[tablero_tuple] = {"heuristica": c.heuristica, "padre": c.padre} # ← tablero actual, no el inicial
+
+        close[tuple(x.valor.flatten())]={"heuristica":x.heuristica,"padre":x.padre}
 

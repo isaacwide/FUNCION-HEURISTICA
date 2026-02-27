@@ -1,36 +1,56 @@
-import numpy as np 
-
 def h_3(tablero_inicial, tablero_destino):
-    conflictos = 0 
-    pares_contados = set()  
+    conflictos = 0
 
-    for i, fila in enumerate(tablero_inicial):  
-        for j, valor in enumerate(fila):
-            
-            
-            if valor == 0:
+    # Mapa: valor -> posición destino
+    pos_destino = {}
+    for i in range(len(tablero_destino)):
+        for j in range(len(tablero_destino[i])):
+            pos_destino[tablero_destino[i][j]] = (i, j)
+
+    size = len(tablero_inicial)
+
+    # Conflictos lineales por FILAS
+    for i in range(size):
+        for j in range(size):
+            val1 = tablero_inicial[i][j]
+            if val1 == 0:
                 continue
-            
-            
-            if tablero_destino[i][j] != valor:
-                valor_tablero = tablero_destino[i][j]  # Lo que debería estar aquí (en el destino)
-                
-                if valor_tablero == 0:
+            fi, fj = pos_destino[val1]
+            if fi != i:  # val1 no pertenece a esta fila en destino
+                continue
+
+            for k in range(j + 1, size):
+                val2 = tablero_inicial[i][k]
+                if val2 == 0:
                     continue
-                
-                # ¿Dónde está actualmente (en tablero_inicial) la ficha que debería estar aquí?
-                posiciones_en_actual = tuple(np.argwhere(tablero_inicial == valor_tablero)[0])
-                
-                # ¿Dónde DEBERÍA estar la ficha actual (valor) según el destino?
-                posiciones_destino = tuple(np.argwhere(tablero_destino == valor)[0])
-                
-                # Si están intercambiadas:
-                if posiciones_en_actual == posiciones_destino:
-                    # Crear un par ordenado para evitar contar dos veces
-                    par = tuple(sorted([valor, valor_tablero]))
-                    
-                    if par not in pares_contados: 
-                        conflictos += 1
-                        pares_contados.add(par)
-    
+                gi, gj = pos_destino[val2]
+                if gi != i:  # val2 tampoco pertenece a esta fila
+                    continue
+
+                # Ambos en la misma fila destino pero en orden invertido
+                if fj > gj:
+                    conflictos += 1
+
+    # Conflictos lineales por COLUMNAS
+    for j in range(size):
+        for i in range(size):
+            val1 = tablero_inicial[i][j]
+            if val1 == 0:
+                continue
+            fi, fj = pos_destino[val1]
+            if fj != j:  # val1 no pertenece a esta columna en destino
+                continue
+
+            for k in range(i + 1, size):
+                val2 = tablero_inicial[k][j]
+                if val2 == 0:
+                    continue
+                gi, gj = pos_destino[val2]
+                if gj != j:
+                    continue
+
+                # Ambos en la misma columna destino pero en orden invertido
+                if fi > gi:
+                    conflictos += 1
+
     return conflictos / 16
