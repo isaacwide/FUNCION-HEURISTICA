@@ -17,5 +17,5 @@ def h_2(tablero_inicial, tablero_d):
             
             aux = abs(i - objetivo_i) + abs(j - objetivo_j)
             distancia += aux
-    
-    return distancia / 64
+    max_manhattan = (len(tablero_inicial)**2 - 1) * 2 * (len(tablero_inicial) - 1)
+    return distancia / max_manhattan

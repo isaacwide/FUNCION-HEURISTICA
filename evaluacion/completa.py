@@ -33,4 +33,4 @@ def h_4(tablero_inicial, tablero_destino):
                 if todos_correctos == len(fichas):
                     cumple += 1
 
-    return cumple/16
+    return cumple/a**2

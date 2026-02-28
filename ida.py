@@ -1,5 +1,8 @@
 import numpy as np
 import heapq
+import os 
+import psutil ##vamos a 
+import gc #forzar al recolctor de basura
 from evaluacion import piesas, manhathan, conflictos, completa, centro
 
 class Nodo:
@@ -13,11 +16,15 @@ class Nodo:
 
 #diccionario de la soguiente manera 
 # abierto {"tablero":["heuristica":n,"padre":"tablero padre"]}
-abierto = [] # heap para poder simpre tener el valor menor 
-abierto_dict = {}  # tablero_tuple -> heuristica -> padre 
+visitados = set() #para el tabu de el path
+path =[]
+limte_ram = 0.005 #200 mb
 
-close = {}
-path = []
+def memoria():
+    proceso = psutil.Process(os.getpid())
+    mem_usada = proceso.memory_info().rss  # bytes usados por el proceso
+    mem_total = psutil.virtual_memory().total
+    return not(mem_usada >= mem_total * limte_ram) #vamos a usaer 400kilo porque  llebar 24 gigas 
 
 def evaluacion(tablero_inicial, tablero_destino, n_movimientos):
     h1 = piesas.h_1(tablero_inicial, tablero_destino)
@@ -30,13 +37,18 @@ def evaluacion(tablero_inicial, tablero_destino, n_movimientos):
     return f
 
 def path_encontrado(nodo):
+    path_parcial=[]
     while nodo:
-        path.append(nodo.valor)
+        path_parcial.append(nodo.valor)
         nodo = nodo.padre
-    return path[::-1]  
+    return path_parcial[::-1]  
     
 
 def algoritmo(tablero_inicial, tablero_destino, size):
+    global abierto, abierto_dict, close
+    abierto = []
+    abierto_dict = {}
+    close = {}
     n_movimientos = 0
 
     f = evaluacion(tablero_inicial, tablero_destino, n_movimientos)
@@ -45,7 +57,7 @@ def algoritmo(tablero_inicial, tablero_destino, size):
     abierto_dict[tuple(tablero_inicial.flatten())] = {"heuristica": f, "padre": None}
 
 
-    while abierto: #deberia checar la memoria si esta llena o no seria la suma de espacio de open closee y diccionarios
+    while abierto and memoria(): #deberia checar la memoria si esta llena o no seria la suma de espacio de open closee y diccionarios
         _, x = heapq.heappop(abierto)
         x_tuple = tuple(x.valor.flatten())
 
@@ -55,7 +67,8 @@ def algoritmo(tablero_inicial, tablero_destino, size):
         del abierto_dict[x_tuple]  # eliminar del dict
 
         if np.array_equal(x.valor, tablero_destino):
-            return path_encontrado(x)
+            path_parcial = path_encontrado(x)
+            return path_encontrado(x), x
         
         posiciones = tuple(np.argwhere(x.valor == 0)[0])
         i, j = posiciones
@@ -88,7 +101,7 @@ def algoritmo(tablero_inicial, tablero_destino, size):
         for c in chil:
             tablero_tuple = tuple(c.valor.flatten())#obtenemos el valor en tuplas 
 
-            if tablero_tuple not in abierto_dict and tablero_tuple not in close:#si no esta en open si em close // aca agregariamos la busqueda por tabu con el path anterior 
+            if tablero_tuple not in abierto_dict and tablero_tuple not in close and tablero_tuple not in visitados:#si no esta en open si em close // aca agregariamos la busqueda por tabu con el path anterior 
                 heapq.heappush(abierto, (c.heuristica, c))
                 abierto_dict[tablero_tuple] = {"heuristica":c.heuristica,"padre":c.padre}
 
@@ -106,3 +119,39 @@ def algoritmo(tablero_inicial, tablero_destino, size):
         close[tuple(x.valor.flatten())]={"heuristica":x.heuristica,"padre":x.padre}
 
 #obtendriamos el path y lo guardamss y mandamos a la basura todo lo anterior 
+    print("memoria llenas  :)")
+    _, x = heapq.heappop(abierto) #tomamos el mejor nodo evaludado
+    path_parcial = path_encontrado(x)
+    abierto.clear()
+    abierto_dict.clear()
+    close.clear()
+    gc.collect()
+
+    return path_parcial , x
+
+def profundizar(tablero_inicial, tablero_destino, size):
+    global visitados
+    camino, nodo = algoritmo(tablero_inicial, tablero_destino, size)
+    path.append(camino)
+    visitados.add(tuple(camino[-1].flatten()))
+
+    ultimo_estado = None
+
+    while not np.array_equal(nodo.valor, tablero_destino):
+        
+        proceso = psutil.Process(os.getpid())
+        ram = proceso.memory_info().rss / (1024*1024)
+        print(f"RAM: {ram:.1f}MB | visitados: {len(visitados)} | nodo igual anterior: {ultimo_estado is not None and np.array_equal(nodo.valor, ultimo_estado)}")
+
+        
+        if ultimo_estado is not None and np.array_equal(nodo.valor, ultimo_estado):
+            print("Nodo atorado, subiendo límite de memoria temporalmente...")
+            global limte_ram
+            limte_ram += 0.001  # +0.1% más de RAM por iteración
+
+        ultimo_estado = nodo.valor.copy()
+        camino, nodo = algoritmo(nodo.valor, tablero_destino, size)
+        path.append(camino)
+        visitados.add(tuple(camino[-1].flatten()))
+
+    return [estado for camino in path for estado in camino]

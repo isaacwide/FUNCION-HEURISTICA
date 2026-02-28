@@ -1,4 +1,6 @@
 def h_3(tablero_inicial, tablero_destino):
+
+    n = len(tablero_inicial)
     conflictos = 0
 
     # Mapa: valor -> posición destino
@@ -53,4 +55,4 @@ def h_3(tablero_inicial, tablero_destino):
                 if fi > gi:
                     conflictos += 1
 
-    return conflictos / 16
+    return conflictos /  (n * n * (n - 1))

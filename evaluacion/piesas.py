@@ -1,5 +1,5 @@
 def h_1(tablero_inicial,tablero_d):
-    
+    a = len(tablero_inicial)
     contador= 0 
     for i, fila in enumerate(tablero_d):
             for j, valor in enumerate(fila):
@@ -7,4 +7,4 @@ def h_1(tablero_inicial,tablero_d):
                     contador = contador +1
 
     
-    return contador / 16
+    return contador / a**2

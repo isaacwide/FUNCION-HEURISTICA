@@ -35,4 +35,4 @@ def h_5(tablero_inicial, tablero_destino):
         if valor_actual == valor_esperado:
             vecinos_correctos += 1
     
-    return (distancia+ vecinos_correctos)/9
+    return (distancia+ vecinos_correctos)/((2*a))+4
