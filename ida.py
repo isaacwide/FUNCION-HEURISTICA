@@ -3,6 +3,7 @@ import heapq
 import os 
 import psutil ##vamos a 
 import gc #forzar al recolctor de basura
+import math
 from evaluacion import piesas, manhathan, conflictos, completa, centro
 
 class Nodo:
@@ -18,7 +19,8 @@ class Nodo:
 # abierto {"tablero":["heuristica":n,"padre":"tablero padre"]}
 visitados = set() #para el tabu de el path
 path =[]
-limte_ram = 0.005 #200 mb
+limte_ram = 0.02#200 mb
+landa = 0.2 
 
 def memoria():
     proceso = psutil.Process(os.getpid())
@@ -32,8 +34,18 @@ def evaluacion(tablero_inicial, tablero_destino, n_movimientos):
     h3 = conflictos.h_3(tablero_inicial, tablero_destino)
     h4 = completa.h_4(tablero_inicial, tablero_destino)
     h5 = centro.h_5(tablero_inicial, tablero_destino)
+    g = math.log((n_movimientos/100))
+    f = (-0.1*h1 + 0.1*h2 + 0.3*h3 - 0.25*h4 + 0.05*h5) - 0.2*g
 
-    f = (-0.1*h1 + 0.1*h2 + 0.3*h3 - 0.15*h4 + 0.05*h5) - 0.2*(n_movimientos/100)
+    print("valor heuristico final ")
+    print(h1)
+    print(h2)
+    print(h3)
+    print(h4)
+    print(h5)
+    print(g)
+    print(f)
+
     return f
 
 def path_encontrado(nodo):
@@ -49,7 +61,7 @@ def algoritmo(tablero_inicial, tablero_destino, size):
     abierto = []
     abierto_dict = {}
     close = {}
-    n_movimientos = 0
+    n_movimientos = 1
 
     f = evaluacion(tablero_inicial, tablero_destino, n_movimientos)
     nodo = Nodo(tablero_inicial, f, None)
@@ -100,7 +112,6 @@ def algoritmo(tablero_inicial, tablero_destino, size):
 
         for c in chil:
             tablero_tuple = tuple(c.valor.flatten())#obtenemos el valor en tuplas 
-
             if tablero_tuple not in abierto_dict and tablero_tuple not in close and tablero_tuple not in visitados:#si no esta en open si em close // aca agregariamos la busqueda por tabu con el path anterior 
                 heapq.heappush(abierto, (c.heuristica, c))
                 abierto_dict[tablero_tuple] = {"heuristica":c.heuristica,"padre":c.padre}
