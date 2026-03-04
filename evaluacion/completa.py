@@ -1,5 +1,3 @@
-import numpy as np 
-
 def h_4(tablero_inicial, tablero_destino):
     cumple = 0
     a = len(tablero_destino)
