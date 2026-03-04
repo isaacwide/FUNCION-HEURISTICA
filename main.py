@@ -2,7 +2,6 @@ import numpy as np
 import time
 import os
 import signal
-import csv
 import sys
 import ida
 from ida import profundizar
@@ -119,14 +118,7 @@ def obtener_instancias(ruta_base, tamanios=None, dificultades=None):
                     instancias.append((os.path.join(ruta_dif, archivo), tam, dif))
     return instancias
 
-# ─── Guardar resultados en CSV ────────────────────────────────────────────────
-def guardar_csv(resultados, ruta_salida="resultados.csv"):
-    campos = ["archivo", "tamanio", "dificultad", "estado", "movimientos", "tiempo"]
-    with open(ruta_salida, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=campos)
-        writer.writeheader()
-        writer.writerows(resultados)
-    print(f"\nResultados guardados en: {ruta_salida}")
+
 
 # ─── Dashboard por dificultad ─────────────────────────────────────────────────
 def generar_graficas(resultados, tamanio_tag="nxn", dificultad="general"):
@@ -231,7 +223,7 @@ def generar_graficas(resultados, tamanio_tag="nxn", dificultad="general"):
     ruta = os.path.join(carpeta, "dashboard.png")
     plt.savefig(ruta, dpi=150, bbox_inches="tight")
     plt.close()
-    print(f"  ✔ [{dificultad:8s}] Dashboard → {ruta}")
+    print(f"[{dificultad:8s}] Dashboard → {ruta}")
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
@@ -276,8 +268,6 @@ if __name__ == "__main__":
     if resueltos:
         tiempos_r = [r["tiempo"] for r in resueltos]
         print(f"Tiempo promedio (resueltas): {sum(tiempos_r)/len(tiempos_r):.4f}s")
-
-    guardar_csv(todos)
 
     # ── Generar un dashboard por cada combinación tamaño+dificultad ───────────
     tamanio_tag = TAMANIOS[0] if TAMANIOS and len(TAMANIOS) == 1 else "nxn"
