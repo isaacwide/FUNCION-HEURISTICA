@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
-# ─── Timeout ────────────────────────────────────────────────────────────────
+
 TIMEOUT = 120  # segundos por instancia
 
 class TimeoutError(Exception):
@@ -20,7 +20,7 @@ def handler_timeout(signum, frame):
     ida.set_stop()
     raise TimeoutError()
 
-# ─── Leer archivo de instancia ───────────────────────────────────────────────
+
 def leer_instancia(filepath):
     with open(filepath, "r") as f:
         lineas = [l.strip() for l in f if l.strip()]
@@ -39,7 +39,7 @@ def leer_instancia(filepath):
 
     return n, np.array(tablero_inicial), np.array(tablero_destino)
 
-# ─── Resolver una instancia con timeout ──────────────────────────────────────
+
 def resolver_instancia(filepath):
     nombre = os.path.basename(filepath)
     print(f"\n{'─'*50}")
@@ -94,7 +94,6 @@ def resolver_instancia(filepath):
         "tiempo": round(tiempo, 4) if tiempo is not None else None
     }
 
-# ─── Recorrer carpetas ────────────────────────────────────────────────────────
 def obtener_instancias(ruta_base, tamanios=None, dificultades=None):
     """
     Recorre data/<tamanio>/<dificultad>/instancia_XX.txt
@@ -230,8 +229,8 @@ if __name__ == "__main__":
     RUTA_DATA = "data"
 
     # ── Filtra aquí si quieres procesar solo ciertos tamaños/dificultades ──
-    TAMANIOS     = ["5x5"]   # ej. ["3x3", "4x4"]  o None para todas
-    DIFICULTADES = None      # ej. ["facil"]        o None para todas
+    TAMANIOS     = ["6x6"]   # ej. ["3x3", "4x4"]  o None para todas
+    DIFICULTADES =  ["facil","medio","dificil"]   #inicamos facil medio dificil 
 
     instancias = obtener_instancias(RUTA_DATA, TAMANIOS, DIFICULTADES)
 
