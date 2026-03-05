@@ -9,6 +9,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import threading
 
 
 TIMEOUT = 120  # segundos por instancia
@@ -19,6 +20,11 @@ class TimeoutError(Exception):
 def handler_timeout(signum, frame):
     ida.set_stop()
     raise TimeoutError()
+
+
+def concurrente(RUTA_DATA, TAMANIOS, DIFICULTAD):
+    instancias = obtener_instancias(RUTA_DATA, TAMANIOS, DIFICULTAD)
+    resultados_compartidos[DIFICULTAD] = instancias
 
 
 def leer_instancia(filepath):
@@ -118,8 +124,6 @@ def obtener_instancias(ruta_base, tamanios=None, dificultades=None):
     return instancias
 
 
-
-# ─── Dashboard por dificultad ─────────────────────────────────────────────────
 def generar_graficas(resultados, tamanio_tag="nxn", dificultad="general"):
     """
     Genera un dashboard en:
@@ -231,9 +235,25 @@ if __name__ == "__main__":
     # ── Filtra aquí si quieres procesar solo ciertos tamaños/dificultades ──
     TAMANIOS     = ["6x6"]   # ej. ["3x3", "4x4"]  o None para todas
     DIFICULTADES =  ["facil","medio","dificil"]   #inicamos facil medio dificil 
+    resultados_compartidos = {}
+    #RUTA_DATA, TAMANIOS, DIFICULTAD
+    instancia_1 = threading.Thread(target=concurrente, args=(RUTA_DATA, TAMANIOS ,DIFICULTADES[0]))
+    instancia_2 = threading.Thread(target=concurrente, args=(RUTA_DATA, TAMANIOS ,DIFICULTADES[1]))
+    instancia_3 = threading.Thread(target=concurrente, args=(RUTA_DATA, TAMANIOS ,DIFICULTADES[2]))
 
-    instancias = obtener_instancias(RUTA_DATA, TAMANIOS, DIFICULTADES)
+    instancia_1.start()
+    instancia_2.start()
+    instancia_3.start()
 
+    instancia_1.join()
+    instancia_2.join()
+    instancia_3.join()
+
+
+    instancias = []
+    for dif in DIFICULTADES:
+        instancias += resultados_compartidos.get(dif, [])
+        
     if not instancias:
         print("No se encontraron instancias. Verifica la ruta 'data/'.")
         sys.exit(1)
