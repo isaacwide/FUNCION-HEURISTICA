@@ -3,7 +3,6 @@ def h_3(tablero_inicial, tablero_destino):
     n = len(tablero_inicial)
     conflictos = 0
 
-    # Mapa: valor -> posición destino
     pos_destino = {}
     for i in range(len(tablero_destino)):
         for j in range(len(tablero_destino[i])):
@@ -11,14 +10,13 @@ def h_3(tablero_inicial, tablero_destino):
 
     size = len(tablero_inicial)
 
-    # Conflictos lineales por FILAS
     for i in range(size):
         for j in range(size):
             val1 = tablero_inicial[i][j]
             if val1 == 0:
                 continue
             fi, fj = pos_destino[val1]
-            if fi != i:  # val1 no pertenece a esta fila en destino
+            if fi != i:  
                 continue
 
             for k in range(j + 1, size):
@@ -26,10 +24,9 @@ def h_3(tablero_inicial, tablero_destino):
                 if val2 == 0:
                     continue
                 gi, gj = pos_destino[val2]
-                if gi != i:  # val2 tampoco pertenece a esta fila
+                if gi != i:  
                     continue
 
-                # Ambos en la misma fila destino pero en orden invertido
                 if fj > gj:
                     conflictos += 1
 
@@ -40,7 +37,7 @@ def h_3(tablero_inicial, tablero_destino):
             if val1 == 0:
                 continue
             fi, fj = pos_destino[val1]
-            if fj != j:  # val1 no pertenece a esta columna en destino
+            if fj != j:  
                 continue
 
             for k in range(i + 1, size):
@@ -51,7 +48,6 @@ def h_3(tablero_inicial, tablero_destino):
                 if gj != j:
                     continue
 
-                # Ambos en la misma columna destino pero en orden invertido
                 if fi > gi:
                     conflictos += 1
 

@@ -24,14 +24,37 @@ _stop_flag = threading.Event()
 
 def set_stop():
     _stop_flag.set()
-# Variables globales
- 
 
 def memoria():
     proceso = psutil.Process(os.getpid())
     mem_usada = proceso.memory_info().rss
     mem_total = psutil.virtual_memory().total
     return mem_usada < mem_total * limite_ram  
+
+
+def encontrar_path(camino):
+    movimientos = []
+    for i in range(len(camino)-1):
+        actual = camino[i]
+        siguiente = camino[i+1]
+
+        k = tuple(np.argwhere(actual == 0)[0])
+        x , y = k 
+        k_n = tuple(np.argwhere(siguiente == 0)[0])   
+        xD , yd = k_n
+
+        difx = xD - x 
+        dify = yd - y
+
+        if difx == -1:
+            movimientos.append("U")
+        elif difx == 1 :
+            movimientos.append("D")
+        elif dify == -1:
+            movimientos.append("L")
+        elif dify == 1:
+            movimientos.append("R")
+    return movimientos
 
 def evaluacion(tablero_inicial, tablero_destino, n_movimientos, size):
     h1 = piesas.h_1(tablero_inicial, tablero_destino)
@@ -41,7 +64,10 @@ def evaluacion(tablero_inicial, tablero_destino, n_movimientos, size):
     h5 = centro.h_5(tablero_inicial, tablero_destino)
     crecimiento = size/2
     g = n_movimientos/(int(crecimiento*100))
-    f = (-0.1*h1 + 0.15*h2 + 0.39*h3 - 0.3*h4 + 0.05*h5) - 0.01*g
+    f = (0.05*h1 + 0.60*h2 + 0.25*h3 + 0.05*h4 + 0.05*h5) - 0.01*g 
+
+    #print(f"h1={h1:.4f} | h2={h2:.4f} | h3={h3:.4f} | h4={h4:.4f} | h5={h5:.4f} | g={g:.4f} | f={f:.4f}")
+
     return f
 
 def path_encontrado(nodo):
@@ -126,7 +152,7 @@ def algoritmo(tablero_inicial, tablero_destino, size):
     if abierto:  
         _, x = heapq.heappop(abierto)
     else:  
-        print("Abierto vacío, usando último nodo")
+        # en caso de que abierto se vacie
         x = ultimo_x
 
     path_parcial = path_encontrado(x)
@@ -140,7 +166,7 @@ def algoritmo(tablero_inicial, tablero_destino, size):
 def profundizar(tablero_inicial, tablero_destino, size):
     global visitados, path, limite_ram  
     _stop_flag.clear()  
-    visitados.clear()      # ← agregar esta línea
+    visitados.clear()     
     limite_ram = 0.03 
     path = []
     
@@ -151,24 +177,18 @@ def profundizar(tablero_inicial, tablero_destino, size):
         visitados.add(tuple(estado.flatten()))
 
     ultimo_estado = None
-    contador_ciclos = 0
+    
 
     while not np.array_equal(nodo.valor, tablero_destino):
-        if _stop_flag.is_set():     # ← agregar estas 2 líneas
+        if _stop_flag.is_set():     
             return []
-        contador_ciclos += 1
         
-        # Detección de ciclos
-        if contador_ciclos > 1000:
-            print("Posible ciclo infinito, limpiando visitados")
-            visitados.clear()
-            contador_ciclos = 0
-
+        
         if ultimo_estado is not None and np.array_equal(nodo.valor, ultimo_estado):
             print("Ciclo detectado, aumentando límite RAM")
             visitados.clear()
             limite_ram += 0.05  
-            contador_ciclos = 0
+            
 
         visitados.add(tuple(nodo.valor.flatten())) 
         ultimo_estado = nodo.valor.copy()
@@ -180,7 +200,8 @@ def profundizar(tablero_inicial, tablero_destino, size):
         for estado in camino:
             visitados.add(tuple(estado.flatten()))
 
-    # Aplanar la lista de caminos
     resultado = [estado for camino in path for estado in camino]
-    print(f"Solución encontrada con {len(resultado)} pasos")
-    return resultado
+
+    movements = encontrar_path(resultado)
+
+    return movements

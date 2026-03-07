@@ -16,7 +16,6 @@ def h_5(tablero_inicial, tablero_destino):
     posicion_actual = tuple(np.argwhere(tablero_inicial == valor_centro)[0])
     posicion_i, posicion_j = posicion_actual
     
-    # Distancia Manhattan desde su posición actual hasta el centro
     distancia = abs(posicion_i - i) + abs(posicion_j - j)
     
     posibles_vecinos = []
@@ -41,5 +40,6 @@ def h_5(tablero_inicial, tablero_destino):
         
         if valor_actual == valor_esperado:
             vecinos_correctos += 1
+            
     peor_distancia = (i+j)-1
     return (distancia+ vecinos_correctos)/(peor_distancia+4)

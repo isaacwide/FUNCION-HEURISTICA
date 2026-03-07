@@ -7,4 +7,4 @@ def h_1(tablero_inicial,tablero_d):
                     contador = contador +1
 
     
-    return contador / a**2
+    return (a**2-contador) / a**2

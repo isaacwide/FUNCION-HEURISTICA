@@ -8,7 +8,7 @@ def generar_tablero(resultado, movimientos,size):
     
     movimientos_realizados = 0
     intentos_sin_avance = 0
-    max_intentos = 10  # Para evitar bucles infinitos
+    max_intentos = 10  
     
     while movimientos_realizados < movimientos:
         # Encontrar posición del 0
@@ -37,11 +37,10 @@ def generar_tablero(resultado, movimientos,size):
             
             resultado[i][j], resultado[ni][nj] = resultado[ni][nj], resultado[i][j]
             
-            # Convertir a tupla para verificar si ya existe
             estado_actual = tuple(resultado.flatten())
             
             if estado_actual not in estados_visitados:
-                # Movimiento válido, guardarlo
+                
                 estados_visitados.add(estado_actual)
                 movimientos_realizados += 1
                 movimiento_exitoso = True
