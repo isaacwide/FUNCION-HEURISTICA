@@ -65,6 +65,7 @@ def evaluacion(tablero_inicial, tablero_destino, n_movimientos, size):
     crecimiento = size/2
     g = n_movimientos/(int(crecimiento*100))
     f = (0.05*h1 + 0.60*h2 + 0.25*h3 + 0.05*h4 + 0.05*h5) - 0.01*g 
+    #f = (-0.1*h1 + 0.1*h2 + 0.3*h3 - 0.25*h4 + 0.05*h5) - 0.2*g 
 
     #print(f"h1={h1:.4f} | h2={h2:.4f} | h3={h3:.4f} | h4={h4:.4f} | h5={h5:.4f} | g={g:.4f} | f={f:.4f}")
 

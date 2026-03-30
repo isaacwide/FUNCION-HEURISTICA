@@ -1,0 +1,102 @@
+# 🧩 N-Puzzle Solver — IDA* con Heurística Combinada
+
+> Este programa fue desarrollado en Linux y está pensado para ejecutarse en sistemas basados en Unix.
+
+
+
+##  Estructura del proyecto
+
+
+FUNCION-HEURISTICA/
+├── main.py                # Punto de entrada, ingresa instancia desde terminal
+├── ida.py                 # Algoritmo de búsqueda IDA*
+├── generar_graficas.py    # Generador de gráficas
+├── generar_tableros.py    # Generador de tableros pedidos en la tarea
+├── tablero.py             # Genera un tablero aleatorio
+├── evaluacion/
+│   ├── piesas.py          # h1: piezas fuera de lugar
+│   ├── manhathan.py       # h2: distancia Manhattan
+│   ├── conflictos.py      # h3: conflictos lineales
+│   ├── completa.py        # h4: fichas no en su lugar sin sus vecinos
+│   └── centro.py          # h5: distancia al centro
+└── data/
+    └── <tamaño>/
+        ├── facil/
+        ├── medio/
+        └── dificil/
+
+
+## Instalación
+
+### 1. Crear entorno virtual
+
+python3 -m venv env
+source env/bin/activate
+
+
+### 2. Instalar dependencias
+
+pip install numpy psutil matplotlib numba
+
+
+## Cómo ejecutar
+
+### `main.py` — Solver principal
+
+python main.py
+
+Se solicitará la ruta del archivo y su nombre. Ingresarlos cuando se pidan.
+
+
+### `generar_graficas.py` — Gráficas de resultados
+
+Antes de ejecutar, modificar manualmente en el archivo:
+
+**Línea 213** — tableros a graficar:
+
+TAMANIOS = ["3x3"]   
+
+
+**Línea 214** — dificultades a graficar:
+
+DIFICULTADES = ["facil", "medio", "dificil"]
+
+pueden quitarse dificultades 
+
+Luego ejecutar:
+
+python generar_graficas.py
+
+
+> A partir de tableros 4x4 el tiempo de generación de gráficas aumenta considerablemente.
+
+
+
+### `generar_tableros.py` — Generador de instancias
+
+> Se recomienda **no ejecutar** este script ya que sobreescribirá las instancias experimentadas.
+
+En caso de querer modificarlas:
+- **Línea 13** — agregar más tamaños de tablero
+- **Línea 35** — agregar o modificar dificultades en el diccionario
+
+
+python generar_tableros.py
+
+
+
+
+## Salida
+
+Secuencia de movimientos del espacio en blanco separados por comas:
+
+
+U,L,D,R,U,U,L,...
+
+
+| Símbolo | Dirección        |
+|---------|------------------|
+| U       | Arriba (Up)      |
+| D       | Abajo (Down)     |
+| L       | Izquierda (Left) |
+| R       | Derecha (Right)  |

@@ -1,6 +1,5 @@
 import numpy as np
 import ida 
-import signal 
 import time 
 from ida import profundizar
 TIMEOUT = 120 
@@ -50,8 +49,6 @@ try:
     fin = time.time()
     #tiempo que se tardo el algoritmo 
     t_total = fin-inicio
-    signal.alarm(0)
-    
     for camino in path:
         print(camino, end=",")
     print("\n")
@@ -64,5 +61,5 @@ except TimeoutError:
 
     tiempo = TIMEOUT
     estado = "timeout"
-    signal.alarm(0)
+    
     print(f"Timeout ({TIMEOUT}s) alcanzado")
